@@ -1,64 +1,52 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Catcher : MonoBehaviour
 {
     [SerializeField] BallManager ballManager;
     [SerializeField] GameObject catchedBall;
-
-    private AudioSource audioSource;
-
-    private bool canCatch = false;
-
     [SerializeField] float vibrationTime = 1f;
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "Ball")
-        {
-            canCatch = true;
-            Debug.Log("enter");
-        }
-    }
-    private void OnTriggerStay(Collider other)
-    {
-        if(other.tag == "Ball")
-        {
-            canCatch = true;
-            Debug.Log("stay");
-        }
+    AudioSource audioSource;
+    Coroutine vibration;
 
+    void Awake() { audioSource = GetComponent<AudioSource>(); }
+    void Start() { if (catchedBall != null) catchedBall.SetActive(false); }
+
+    void OnTriggerEnter(Collider other) { CatchContact(other); }
+    void OnTriggerStay(Collider other) { CatchContact(other); }
+
+    void CatchContact(Collider other)
+    {
+        GameObject candidate = other.attachedRigidbody != null
+            ? other.attachedRigidbody.gameObject : other.gameObject;
+        if (candidate.CompareTag("Ball")) TryCatch(ballManager, candidate);
     }
 
-    private void Start()
+    public bool TryCatch(BallManager manager, GameObject candidate)
     {
-        catchedBall.SetActive(false);
-
-        audioSource = GetComponent<AudioSource>();
-    }
-
-    private void Update()
-    {
-        if(canCatch)
-        {
-            StartCoroutine("ControllerVibration");
-            audioSource.Play();
-            ballManager.Catch();
-            catchedBall.SetActive(true);
-            canCatch = false;
-            Debug.Log("キャッチ");
-        }
+        if (!isActiveAndEnabled || manager == null || manager != ballManager
+            || !manager.OwnsBall(candidate)) return false;
+        // Resolve immediately so multiple contacts cannot count the same pitch twice.
+        manager.Catch();
+        if (audioSource != null) audioSource.Play();
+        if (catchedBall != null) catchedBall.SetActive(true);
+        if (vibration != null) StopCoroutine(vibration);
+        vibration = StartCoroutine(ControllerVibration());
+        return true;
     }
 
     IEnumerator ControllerVibration()
     {
-        //左のコントローラーを振動させる
         OVRInput.SetControllerVibration(1f, 1f, OVRInput.Controller.LTouch);
-
-        //指定された時間待つ
         yield return new WaitForSeconds(vibrationTime);
+        OVRInput.SetControllerVibration(0f, 0f, OVRInput.Controller.LTouch);
+        vibration = null;
+    }
 
-        //コントローラーの振動を止める
-        OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.LTouch);
+    void OnDisable()
+    {
+        if (vibration != null) StopCoroutine(vibration);
+        vibration = null;
+        OVRInput.SetControllerVibration(0f, 0f, OVRInput.Controller.LTouch);
     }
 }

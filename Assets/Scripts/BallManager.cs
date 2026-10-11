@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BallManager : MonoBehaviour
+public partial class BallManager : MonoBehaviour
 {
     [SerializeField] Pitcher pithcer;
     [SerializeField] Batter batter;
@@ -42,6 +42,7 @@ public class BallManager : MonoBehaviour
 
     private void Update()
     {
+        if (UsePhysicalFlight) return;
         if(ball != null && !catchedBall)
         {
             MoveBall();
@@ -50,6 +51,7 @@ public class BallManager : MonoBehaviour
 
     public void Pitch(bool _max)
     {
+        if (UsePhysicalFlight) { PitchPhysical(_max); return; }
         //throwSpeed = throwSpeedSlider.value * 10;
         throwSpeed = _max ? 200f : Random.Range(throwSpeed_min, throwSpeed_max + 1) * 2;
         throwDuration = 57.6f / throwSpeed;
@@ -89,6 +91,7 @@ public class BallManager : MonoBehaviour
 
     public void Catch()
     {
+        if (ball == null) return;
         audioSource.PlayOneShot(success);
         Destroy(ball);
         ball = null;
