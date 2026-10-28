@@ -24,7 +24,7 @@ public partial class BallManager
     float DragPerMass => 0.5f * airDensity * dragCoefficient * Mathf.PI
                          * ballRadiusMetres * ballRadiusMetres / ballMassKg;
 
-    void PitchPhysical(bool special)
+    void PitchPhysical(bool special, float? testSpeedKmh)
     {
         if (ball != null) return;
         if (pitcherHand == null || targetArea_min == null || targetArea_max == null
@@ -34,7 +34,7 @@ public partial class BallManager
             if (pithcer != null) pithcer.CanPitch = true;
             return;
         }
-        throwSpeed = special ? specialSpeedKmh : Random.Range(
+        throwSpeed = special ? specialSpeedKmh : testSpeedKmh ?? Random.Range(
             Mathf.Min(minimumSpeedKmh, maximumSpeedKmh), Mathf.Max(minimumSpeedKmh, maximumSpeedKmh));
         pitchPos = pitcherHand.position;
         Vector3 velocity = Vector3.zero;

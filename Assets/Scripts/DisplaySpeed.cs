@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class DisplaySpeed : MonoBehaviour
 {
+#if UNITY_EDITOR
+    public float? InspectorNormalSpeedKmh { get; set; }
+#endif
     [SerializeField] Pitcher pitcher;
 
     [SerializeField] TextMeshProUGUI throwSpeedText;
@@ -61,18 +64,22 @@ public class DisplaySpeed : MonoBehaviour
         stringText.text = "Ready...";
         speedTextObj.SetActive(false);
         stringTextObj.SetActive(true);
-        StartCoroutine(ReadyTextCoroutine(_max));
+        float? testSpeedKmh = null;
+#if UNITY_EDITOR
+        if (!_max) testSpeedKmh = InspectorNormalSpeedKmh;
+#endif
+        StartCoroutine(ReadyTextCoroutine(_max, testSpeedKmh));
     }
 
 
-    IEnumerator ReadyTextCoroutine(bool _max)
+    IEnumerator ReadyTextCoroutine(bool _max, float? testSpeedKmh)
     {
         yield return new WaitForSeconds(0.1f);
         buttonMove = true;
 
         yield return new WaitForSeconds(1f);
 
-        pitcher.PitchStart(_max);
+        pitcher.PitchStart(_max, testSpeedKmh);
 
         yield return new WaitForSeconds(1f);
 

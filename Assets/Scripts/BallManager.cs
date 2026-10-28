@@ -49,11 +49,13 @@ public partial class BallManager : MonoBehaviour
         }
     }
 
-    public void Pitch(bool _max)
+    public void Pitch(bool _max) => Pitch(_max, null);
+
+    public void Pitch(bool _max, float? testSpeedKmh)
     {
-        if (UsePhysicalFlight) { PitchPhysical(_max); return; }
+        if (UsePhysicalFlight) { PitchPhysical(_max, testSpeedKmh); return; }
         //throwSpeed = throwSpeedSlider.value * 10;
-        throwSpeed = _max ? 200f : Random.Range(throwSpeed_min, throwSpeed_max + 1) * 2;
+        throwSpeed = _max ? 200f : testSpeedKmh ?? (Random.Range(throwSpeed_min, throwSpeed_max + 1) * 2);
         throwDuration = 57.6f / throwSpeed;
         batter.SwingStart(throwDuration);
 

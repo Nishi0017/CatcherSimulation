@@ -1,5 +1,16 @@
 # DevelopScene の物理投球
 
+## Editorでの投球確認
+
+1. DevelopSceneを開いてPlay Modeに入る。
+2. Pokeボタンの `Interactable Unity Event Wrapper` コンポーネントが付いたオブジェクトを選択する。
+3. Inspector末尾の `Poke押下を実行` をクリックする。登録済みの `When Select` を実行するため、音・Ready表示・投球開始までPoke押下と同じイベント経路になる。
+4. Sceneビューで軌道を確認する。最大モードは `ReadyText(true)` が登録されている側のPokeボタンを選択する。
+
+通常投球は `ButtonBase / NormalSpeed_BigButton / Button` のInspectorにある `テスト球速（km/h）` を指定してから押す（初期値100）。DevelopSceneとMainSceneで、その投球だけ指定値を使用する。VRから実際にPokeを押した場合は従来のランダム範囲を使用する。最大モードには固定球速を適用しない。MainSceneは従来の直線移動・到達時間の計算式を維持する。
+
+非再生中・一時停止中・コンポーネント無効時はボタンを無効にする。手やコントローラーを模擬する機能ではなく、押下イベントの呼び出しを行う。
+
 ## 実装
 
 - `BallManager` はシーン名が `DevelopScene` のとき物理投球を使用する。MainScene / SampleScene は従来の直線補間を使用する。

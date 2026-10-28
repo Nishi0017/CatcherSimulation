@@ -29,7 +29,9 @@ public class Pitcher : MonoBehaviour
         defaltRot = transform.rotation;
     }
 
-    public void PitchStart(bool _max)
+    public void PitchStart(bool _max) => PitchStart(_max, null);
+
+    public void PitchStart(bool _max, float? testSpeedKmh)
     {
         if (!canPitch || isPitching) return;
 
@@ -38,14 +40,14 @@ public class Pitcher : MonoBehaviour
         canPitch = false;
         //displaySpeed.RandomNumberDisplay();
         anim.SetTrigger("Pitch");
-        StartCoroutine(PitchCoroutine(_max));
+        StartCoroutine(PitchCoroutine(_max, testSpeedKmh));
     }
 
-    IEnumerator PitchCoroutine(bool _max)
+    IEnumerator PitchCoroutine(bool _max, float? testSpeedKmh)
     {
         yield return new WaitForSeconds(pitchTime);
 
-        ballScript.Pitch(_max);
+        ballScript.Pitch(_max, testSpeedKmh);
     }
 
     private void Update()
